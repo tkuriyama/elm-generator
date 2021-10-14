@@ -16,13 +16,12 @@ import Generator exposing (..)
 
 spec0 : Test.Test
 spec0 =
-    Test.test "#repeat: \n\n    repeat 1\n    |> advance 5\n    |> Tuple.first\n    --> [1, 1, 1, 1, 1]" <|
+    Test.test "#repeat: \n\n    repeat 1\n    |> take 5\n    --> [1, 1, 1, 1, 1]" <|
         \() ->
             Expect.equal
                 (
                 repeat 1
-                |> advance 5
-                |> Tuple.first
+                |> take 5
                 )
                 (
                 [1, 1, 1, 1, 1]
