@@ -1,6 +1,7 @@
 module Generator exposing
     ( Generator
     , advance
+    , cycle
     , drop
     , filter
     , foldl
@@ -66,7 +67,7 @@ repeat value =
     init () (\_ -> Just ( value, () ))
 
 
-{-| An infinite generator that repeatedly applies the given function.
+{-| An infinite generator that repeatedly applies the given function to the starting value.
 
     iterate ((+) 1) 1
     |> take 5
@@ -76,6 +77,33 @@ repeat value =
 iterate : (a -> a) -> a -> Generator a a
 iterate f value =
     init value (\value_ -> Just ( value_, f value_ ))
+
+
+{-| An infinite generator that repeated cycles through the given values.
+
+    cycle [1, 2, 3]
+    |> take 6
+    --> [1, 2, 3, 1, 2, 3]
+
+-}
+cycle : List a -> Generator a ( List a, a, List a )
+cycle values =
+    case values of
+        [] ->
+            Empty
+
+        x :: xs ->
+            init ( x :: xs, x, xs ) cycleHelper
+
+
+cycleHelper : ( List a, a, List a ) -> Maybe ( a, ( List a, a, List a ) )
+cycleHelper ( current, ref_head, ref_tail ) =
+    case current of
+        [] ->
+            Just ( ref_head, ( ref_tail, ref_head, ref_tail ) )
+
+        x :: xs ->
+            Just ( x, ( xs, ref_head, ref_tail ) )
 
 
 
