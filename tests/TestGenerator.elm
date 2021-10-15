@@ -69,3 +69,53 @@ testTransforms =
                     |> Expect.equal [ 24, 25, 26, 27, 28 ]
             )
         ]
+
+
+
+--------------------------------------------------------------------------------
+
+
+testZip : Test
+testZip =
+    describe "Test zipping works as expected"
+        [ test
+            "filter and zip together"
+            (\_ ->
+                G.iterate ((+) 1) 1
+                    |> G.filter ((<) 10)
+                    -- [11, 12...]
+                    |> G.zipWith (+) (G.iterate ((+) 1) 1)
+                    |> G.take 5
+                    |> Expect.equal [ 12, 14, 16, 18, 20 ]
+            )
+        , test
+            "zip empty generators -> empty"
+            (\_ ->
+                G.fromList []
+                    |> (\g ->
+                            G.zip g g
+                                |> G.empty
+                                |> Expect.equal True
+                       )
+            )
+        , test
+            "zip filtered empty list -> empty"
+            (\_ ->
+                G.fromList [ 1, 2, 3 ]
+                    |> (\g ->
+                            G.zip g (G.filter ((<) 3) g)
+                                |> G.take 3
+                                |> Expect.equal []
+                       )
+            )
+        , test
+            "zip filtered non-empty list -> non-empty"
+            (\_ ->
+                G.fromList [ 1, 2, 3 ]
+                    |> (\g ->
+                            G.zip g (G.filter ((<) 1) g)
+                                |> G.take 3
+                                |> Expect.equal [ ( 1, 2 ), ( 2, 3 ) ]
+                       )
+            )
+        ]

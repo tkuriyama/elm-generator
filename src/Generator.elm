@@ -3,6 +3,7 @@ module Generator exposing
     , advance
     , cycle
     , drop
+    , empty
     , filter
     , foldl
     , fromList
@@ -14,6 +15,8 @@ module Generator exposing
     , tail
     , take
     , toList
+    , zip
+    , zipWith
     )
 
 {-| -}
@@ -43,7 +46,7 @@ type alias GeneratorRecord a b =
 
 -}
 init : b -> (b -> Maybe ( a, b )) -> Generator a b
-init state genNext =
+init state applyNext =
     let
         wrap f b =
             f b
@@ -51,7 +54,7 @@ init state genNext =
     in
     Active
         { state = state
-        , next = wrap genNext
+        , next = wrap applyNext
         }
 
 
@@ -255,14 +258,14 @@ empty generator =
 map : (a -> c) -> Generator a b -> Generator c b
 map f =
     let
-        next_ g state =
-            g.next state
+        next_ applyNext state =
+            applyNext state
                 |> Maybe.map
                     (\( value, state_ ) ->
                         ( Maybe.map f value, state_ )
                     )
     in
-    bind (\g -> Active { state = g.state, next = next_ g })
+    bind (\g -> Active { state = g.state, next = next_ g.next })
 
 
 {-| Return a new generator that filters every value emitted.
@@ -277,8 +280,8 @@ map f =
 filter : (a -> Bool) -> Generator a b -> Generator a b
 filter f =
     let
-        next_ g state =
-            g.next state
+        next_ applyNext state =
+            applyNext state
                 |> Maybe.map
                     (\( value, state_ ) ->
                         ( predicate value, state_ )
@@ -296,7 +299,94 @@ filter f =
                 Nothing ->
                     Nothing
     in
-    bind (\g -> Active { g | next = next_ g })
+    bind (\g -> Active { g | next = next_ g.next })
+
+
+
+--------------------------------------------------------------------------------
+-- Zippers
+
+
+{-| Return a new generator that combines values emitted by two generators into pairs. The new generator will be empty if either of the underlying generator becomes empty.
+
+    iterate ((+) 1) 1
+    |> (\g -> zip g g)
+    |> take 3
+    --> [(1, 1), (2, 2), (3, 3)]
+
+-}
+zip :
+    Generator a b
+    -> Generator c d
+    -> Generator ( a, c ) ( b, d )
+zip generator1 generator2 =
+    zipWith Tuple.pair generator1 generator2
+
+
+{-|
+
+    iterate ((+) 1) 1
+    |> (\g -> zipWith (+) g g)
+    |> take 5
+    --> [2, 4, 6, 8, 10]
+
+-}
+zipWith :
+    (a -> c -> e)
+    -> Generator a b
+    -> Generator c d
+    -> Generator e ( b, d )
+zipWith f generator1 generator2 =
+    case ( generator1, generator2 ) of
+        ( Active g1, Active g2 ) ->
+            zipWithHelper f g1 g2
+
+        ( _, _ ) ->
+            Empty
+
+
+zipWithHelper :
+    (a -> c -> e)
+    -> GeneratorRecord a b
+    -> GeneratorRecord c d
+    -> Generator e ( b, d )
+zipWithHelper f g1 g2 =
+    let
+        next_ g1Next g2Next state =
+            let
+                pair1 =
+                    getNextValue g1Next (Tuple.first state)
+
+                pair2 =
+                    getNextValue g2Next (Tuple.second state)
+            in
+            case ( pair1, pair2 ) of
+                ( Just ( Just value1, state1 ), Just ( Just value2, state2 ) ) ->
+                    Just ( Just <| f value1 value2, ( state1, state2 ) )
+
+                ( _, _ ) ->
+                    Nothing
+    in
+    Active
+        { state = ( g1.state, g2.state )
+        , next = next_ g1.next g2.next
+        }
+
+
+getNextValue :
+    (b -> Maybe ( Maybe a, b ))
+    -> b
+    -> Maybe ( Maybe a, b )
+getNextValue applyNext state =
+    case applyNext state of
+        Just ( Just value, state_ ) ->
+            Just ( Just value, state_ )
+
+        Just ( Nothing, state_ ) ->
+            getNextValue applyNext state_
+
+        Nothing ->
+            Nothing
 
 
 
