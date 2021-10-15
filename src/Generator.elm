@@ -307,7 +307,7 @@ filter f =
 -- Zippers
 
 
-{-| Return a new generator that combines values emitted by two generators into pairs. The new generator will be empty if either of the underlying generator becomes empty.
+{-| Return a new generator that combines values emitted by two generators into pairs.
 
     iterate ((+) 1) 1
     |> (\g -> zip g g)
@@ -323,12 +323,17 @@ zip generator1 generator2 =
     zipWith Tuple.pair generator1 generator2
 
 
-{-|
+{-| Return a new generator that combines values emitted by two generators with the given function.
 
     iterate ((+) 1) 1
     |> (\g -> zipWith (+) g g)
     |> take 5
     --> [2, 4, 6, 8, 10]
+
+    iterate ((+) 1) 1
+    |> (\g -> zipWith (+) g (filter ((<) 5) g))
+    |> take 5
+    --> [7, 9, 11, 13, 15]
 
 -}
 zipWith :
