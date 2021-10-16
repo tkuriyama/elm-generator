@@ -20,6 +20,20 @@ bind f generator =
             Empty
 
 
+bind2 :
+    (GeneratorRecord a b -> GeneratorRecord c d -> Generator e f)
+    -> Generator a b
+    -> Generator c d
+    -> Generator e f
+bind2 f generator1 generator2 =
+    case ( generator1, generator2 ) of
+        ( Active g1, Active g2 ) ->
+            f g1 g2
+
+        ( _, _ ) ->
+            Empty
+
+
 withDefault :
     c
     -> (GeneratorRecord a b -> c)

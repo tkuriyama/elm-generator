@@ -10,6 +10,8 @@ module Generator exposing
     , fromList
     , head
     , init
+    , interleave
+    , intersperse
     , iterate
     , map
     , prefix
@@ -256,6 +258,10 @@ take n =
     advance n >> Tuple.first
 
 
+
+-- takeWhile
+
+
 {-| Advance the generator by n steps, dropping the emitted values. Convenience function for `advance n >> Tuple.second`.
 
     iterate ((+) 1) 1
@@ -270,6 +276,7 @@ drop n =
 
 
 
+-- dropWhile
 {- Test if a generator is empty. An empty generator will emit no further values. Note that it's not necessary to check for emptiness before calling `advance` or other functions that attempt to advance the generator.
 
    fromList [1, 2, 3, 4, 5]
@@ -369,7 +376,7 @@ scanl f acc0 =
 
 
 --------------------------------------------------------------------------------
--- Zippers
+-- Combining Generators
 
 
 {-| Return a new generator that combines values emitted by two generators into pairs.
@@ -407,12 +414,15 @@ zipWith :
     -> Generator c d
     -> Generator e ( b, d )
 zipWith f generator1 generator2 =
-    case ( generator1, generator2 ) of
-        ( Active g1, Active g2 ) ->
-            zipWithHelper f g1 g2
+    Utils.bind2 (zipWithHelper f) generator1 generator2
 
-        ( _, _ ) ->
-            Empty
+
+
+-- case ( generator1, generator2 ) of
+--     ( Active g1, Active g2 ) ->
+--         zipWithHelper f g1 g2
+--     ( _, _ ) ->
+--         Empty
 
 
 zipWithHelper :
@@ -435,6 +445,63 @@ zipWithHelper f g1 g2 =
     in
     Active
         { state = ( g1.state, g2.state )
+        , next = next_ g1.next g2.next
+        }
+
+
+{-| Return a new generator that alteranates values emitted between the given constant value and the given generator.
+
+    intersperse "." (fromList ["a", "b", "c"])
+    |> take 6
+    --> ["a", ".", "b", ".", "c", "."]
+
+-}
+intersperse : a -> Generator a b -> Generator a ( b, (), Bool )
+intersperse value generator =
+    interleave generator (repeat value)
+
+
+{-| Return a new generator that alternates between values emitted by the two given generators.
+
+    interleave (repeat 1) (repeat 2)
+    |> take 6
+    --> [1, 2, 1, 2, 1, 2]
+
+-}
+interleave :
+    Generator a b
+    -> Generator a c
+    -> Generator a ( b, c, Bool )
+interleave generator1 generator2 =
+    Utils.bind2 interleaveHelper generator1 generator2
+
+
+interleaveHelper :
+    GeneratorRecord a b
+    -> GeneratorRecord a c
+    -> Generator a ( b, c, Bool )
+interleaveHelper g1 g2 =
+    let
+        next_ g1Next g2Next ( state1, state2, left ) =
+            case left of
+                True ->
+                    case Utils.getNextValue g1Next state1 of
+                        Just ( Just value1, state1_ ) ->
+                            Just ( Just value1, ( state1_, state2, False ) )
+
+                        _ ->
+                            Nothing
+
+                False ->
+                    case Utils.getNextValue g2Next state2 of
+                        Just ( Just value2, state2_ ) ->
+                            Just ( Just value2, ( state1, state2_, True ) )
+
+                        _ ->
+                            Nothing
+    in
+    Active
+        { state = ( g1.state, g2.state, True )
         , next = next_ g1.next g2.next
         }
 
