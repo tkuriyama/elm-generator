@@ -23,6 +23,9 @@ testSetup =
 
         ones2 =
             G.repeat 1
+
+        emptyG =
+            G.fromList [ 1 ] |> G.drop 1
     in
     describe "Test generator setup"
         [ test
@@ -42,6 +45,13 @@ testSetup =
             (\_ ->
                 Tuple.first (G.advance 100 ints)
                     |> Expect.equal (Tuple.first (G.advance 100 ints2))
+            )
+        , test
+            "cons to empty is same as prefix to empty"
+            (\_ ->
+                G.cons 1 emptyG
+                    |> G.take 2
+                    |> Expect.equal (G.prefix [ 1 ] emptyG |> G.take 2)
             )
         ]
 
@@ -67,6 +77,15 @@ testTransforms =
                     -- [24, 25...]
                     |> G.take 5
                     |> Expect.equal [ 24, 25, 26, 27, 28 ]
+            )
+        , test
+            "filter and scanl"
+            (\_ ->
+                G.iterate ((+) 1) 1
+                    |> G.filter ((<) 10)
+                    |> G.scanl (+) 0
+                    |> G.take 3
+                    |> Expect.equal [ 11, 23, 36 ]
             )
         ]
 

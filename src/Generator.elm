@@ -1,6 +1,7 @@
 module Generator exposing
     ( Generator
     , advance
+    , cons
     , cycle
     , drop
     , empty
@@ -11,6 +12,7 @@ module Generator exposing
     , init
     , iterate
     , map
+    , prefix
     , repeat
     , scanl
     , tail
@@ -106,6 +108,52 @@ cycleHelper ( current, ref_head, ref_tail ) =
 
         x :: xs ->
             Just ( x, ( xs, ref_head, ref_tail ) )
+
+
+{-| Cons a value to a generator.
+
+    cons "a" (fromList ["b", "c", "d"])
+    |> take 4
+    --> ["a", "b", "c", "d"]
+
+-}
+cons : a -> Generator a b -> Generator a ( b, List a )
+cons value =
+    prefix [ value ]
+
+
+{-| Prefix a list of values to a generator.
+
+    prefix [1, 2, 3] (fromList [4, 5, 6])
+    |> take 6
+    --> [1, 2, 3, 4, 5, 6]
+
+-}
+prefix : List a -> Generator a b -> Generator a ( b, List a )
+prefix values0 =
+    let
+        next_ applyNext ( state, values ) =
+            case values of
+                x :: xs ->
+                    Just ( Just x, ( state, xs ) )
+
+                [] ->
+                    applyNext state
+                        |> Maybe.map
+                            (\( value, state_ ) ->
+                                ( value, ( state_, [] ) )
+                            )
+    in
+    Utils.bind
+        (\g ->
+            Active
+                { state =
+                    ( g.state
+                    , values0
+                    )
+                , next = next_ g.next
+                }
+        )
 
 
 
@@ -297,7 +345,7 @@ filter f =
     Utils.bind (\g -> Active { g | next = next_ g.next })
 
 
-{-|
+{-| Foldl for genereators: return a new generator that successively reduces emitted values.
 
     fromList [ 1, 2, 3 ]
     |> scanl (+) 0
