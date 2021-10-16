@@ -21,16 +21,12 @@ module Generator exposing
 
 {-| -}
 
-
-type Generator a b
-    = Active (GeneratorRecord a b)
-    | Empty
+import Internal.Types as Types exposing (..)
+import Internal.Utils as Utils
 
 
-type alias GeneratorRecord a b =
-    { state : b
-    , next : b -> Maybe ( Maybe a, b )
-    }
+type alias Generator a b =
+    Types.Generator a b
 
 
 
@@ -265,7 +261,7 @@ map f =
                         ( Maybe.map f value, state_ )
                     )
     in
-    bind (\g -> Active { state = g.state, next = next_ g.next })
+    Utils.bind (\g -> Active { state = g.state, next = next_ g.next })
 
 
 {-| Return a new generator that filters every value emitted.
@@ -299,7 +295,7 @@ filter f =
                 Nothing ->
                     Nothing
     in
-    bind (\g -> Active { g | next = next_ g.next })
+    Utils.bind (\g -> Active { g | next = next_ g.next })
 
 
 
@@ -357,17 +353,13 @@ zipWithHelper :
     -> Generator e ( b, d )
 zipWithHelper f g1 g2 =
     let
-        next_ g1Next g2Next state =
-            let
-                pair1 =
-                    getNextValue g1Next (Tuple.first state)
+        nextVal =
+            Utils.getNextValue
 
-                pair2 =
-                    getNextValue g2Next (Tuple.second state)
-            in
-            case ( pair1, pair2 ) of
-                ( Just ( Just value1, state1 ), Just ( Just value2, state2 ) ) ->
-                    Just ( Just <| f value1 value2, ( state1, state2 ) )
+        next_ g1Next g2Next ( state1, state2 ) =
+            case ( nextVal g1Next state1, nextVal g2Next state2 ) of
+                ( Just ( Just value1, state1_ ), Just ( Just value2, state2_ ) ) ->
+                    Just ( Just <| f value1 value2, ( state1_, state2_ ) )
 
                 ( _, _ ) ->
                     Nothing
@@ -376,22 +368,6 @@ zipWithHelper f g1 g2 =
         { state = ( g1.state, g2.state )
         , next = next_ g1.next g2.next
         }
-
-
-getNextValue :
-    (b -> Maybe ( Maybe a, b ))
-    -> b
-    -> Maybe ( Maybe a, b )
-getNextValue applyNext state =
-    case applyNext state of
-        Just ( Just value, state_ ) ->
-            Just ( Just value, state_ )
-
-        Just ( Nothing, state_ ) ->
-            getNextValue applyNext state_
-
-        Nothing ->
-            Nothing
 
 
 
@@ -468,21 +444,3 @@ foldl f acc generator =
 
         Empty ->
             acc
-
-
-
---------------------------------------------------------------------------------
--- Internal Helpers
-
-
-bind :
-    (GeneratorRecord a b -> Generator c b)
-    -> Generator a b
-    -> Generator c b
-bind f generator =
-    case generator of
-        Active g ->
-            f g
-
-        Empty ->
-            Empty
