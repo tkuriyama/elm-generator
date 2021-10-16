@@ -4,6 +4,7 @@ module Generator exposing
     , cons
     , cycle
     , drop
+    , dropWhile
     , empty
     , filter
     , foldl
@@ -19,6 +20,7 @@ module Generator exposing
     , scanl
     , tail
     , take
+    , takeWhile
     , toList
     , zip
     , zipWith
@@ -258,8 +260,26 @@ take n =
     advance n >> Tuple.first
 
 
+{-| Take items emitted by the generator while the given predicate holds.
 
--- takeWhile
+    iterate ((+) 1) 1
+    |> takeWhile ((>) 5)
+    --> [1, 2, 3, 4]
+
+-}
+takeWhile : (a -> Bool) -> Generator a b -> List a
+takeWhile predicate generator =
+    case ( head generator, tail generator ) of
+        ( Just x, generator_ ) ->
+            case predicate x of
+                True ->
+                    x :: takeWhile predicate generator_
+
+                False ->
+                    []
+
+        ( _, _ ) ->
+            []
 
 
 {-| Advance the generator by n steps, dropping the emitted values. Convenience function for `advance n >> Tuple.second`.
@@ -275,8 +295,30 @@ drop n =
     advance n >> Tuple.second
 
 
+{-| Drop items emitted by the generator while the given predicate holds.
 
--- dropWhile
+    iterate ((+) 1) 1
+    |> dropWhile ((>) 5)
+    |> take 5
+    --> [6, 7, 8, 9, 10]
+
+-}
+dropWhile : (a -> Bool) -> Generator a b -> Generator a b
+dropWhile predicate generator =
+    case ( head generator, tail generator ) of
+        ( Just x, generator_ ) ->
+            case predicate x of
+                True ->
+                    dropWhile predicate generator_
+
+                False ->
+                    generator_
+
+        ( _, generator_ ) ->
+            generator_
+
+
+
 {- Test if a generator is empty. An empty generator will emit no further values. Note that it's not necessary to check for emptiness before calling `advance` or other functions that attempt to advance the generator.
 
    fromList [1, 2, 3, 4, 5]
@@ -449,7 +491,7 @@ zipWithHelper f g1 g2 =
         }
 
 
-{-| Return a new generator that alteranates values emitted between the given constant value and the given generator.
+{-| Return a new generator that intersperses values from the given generator with the given constant value.
 
     intersperse "." (fromList ["a", "b", "c"])
     |> take 6

@@ -1,5 +1,8 @@
 module Fibonacci exposing (..)
 
+{-| Simple fibonacci sequences, two ways.
+-}
+
 import Generator as G
 
 
