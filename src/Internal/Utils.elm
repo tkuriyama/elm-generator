@@ -8,9 +8,9 @@ import Internal.Types exposing (..)
 
 
 bind :
-    (GeneratorRecord a b -> Generator c b)
+    (GeneratorRecord a b -> Generator c d)
     -> Generator a b
-    -> Generator c b
+    -> Generator c d
 bind f generator =
     case generator of
         Active g ->

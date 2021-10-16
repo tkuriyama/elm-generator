@@ -12,6 +12,7 @@ module Generator exposing
     , iterate
     , map
     , repeat
+    , scanl
     , tail
     , take
     , toList
@@ -85,7 +86,9 @@ iterate f value =
     --> [1, 2, 3, 1, 2, 3]
 
 -}
-cycle : List a -> Generator a ( List a, a, List a )
+cycle :
+    List a
+    -> Generator a ( List a, a, List a )
 cycle values =
     case values of
         [] ->
@@ -146,18 +149,20 @@ advanceIter n xs generator =
 
 
 next : Generator a b -> ( Maybe a, Generator a b )
-next generator =
-    case generator of
-        Active g ->
+next =
+    let
+        default =
+            ( Nothing, Empty )
+
+        applyNext g =
             case g.next g.state of
                 Just ( value, state_ ) ->
                     ( value, Active { g | state = state_ } )
 
                 Nothing ->
-                    ( Nothing, Empty )
-
-        Empty ->
-            ( Nothing, Empty )
+                    default
+    in
+    Utils.withDefault default applyNext
 
 
 {-| Advance one step and return the emitted value (or `Nothing` if the generator is empty).
@@ -168,15 +173,14 @@ next generator =
 
 -}
 head : Generator a b -> Maybe a
-head generator =
-    case generator of
-        Active g ->
+head =
+    let
+        tryHead g =
             advance 1 (Active g)
                 |> Tuple.first
                 |> List.head
-
-        Empty ->
-            Nothing
+    in
+    Utils.withDefault Nothing tryHead
 
 
 {-| Advance one step and return the updated generator.
@@ -228,13 +232,8 @@ drop n =
 
 
 empty : Generator a b -> Bool
-empty generator =
-    case generator of
-        Active _ ->
-            False
-
-        Empty ->
-            True
+empty =
+    Utils.withDefault True (\_ -> False)
 
 
 
@@ -296,6 +295,28 @@ filter f =
                     Nothing
     in
     Utils.bind (\g -> Active { g | next = next_ g.next })
+
+
+{-|
+
+    fromList [ 1, 2, 3 ]
+    |> scanl (+) 0
+    |> take 4
+    --> [1, 3, 6]
+
+-}
+scanl : (c -> a -> c) -> c -> Generator a b -> Generator c ( b, c )
+scanl f acc0 =
+    let
+        next_ applyNext ( state, acc ) =
+            case Utils.getNextValue applyNext state of
+                Just ( Just value, state_ ) ->
+                    Just ( Just <| f acc value, ( state_, f acc value ) )
+
+                _ ->
+                    Nothing
+    in
+    Utils.bind (\g -> Active { state = ( g.state, acc0 ), next = next_ g.next })
 
 
 
