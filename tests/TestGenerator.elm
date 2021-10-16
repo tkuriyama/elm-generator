@@ -60,6 +60,82 @@ testSetup =
 --------------------------------------------------------------------------------
 
 
+testEmpty : Test
+testEmpty =
+    let
+        emptyG =
+            G.fromList [ 1, 2, 3 ] |> G.drop 3
+    in
+    describe "Test various empty scenarios"
+        [ test
+            "take from empty"
+            (\_ ->
+                G.take 5 emptyG
+                    |> Expect.equal []
+            )
+        , test
+            "takeWhile from empty"
+            (\_ ->
+                G.takeWhile ((<) 10) emptyG
+                    |> Expect.equal []
+            )
+        , test
+            "drop from empty"
+            (\_ ->
+                G.drop 5 emptyG
+                    |> G.empty
+                    |> Expect.equal True
+            )
+        , test
+            "dropWhile from empty"
+            (\_ ->
+                G.dropWhile ((<) 10) emptyG
+                    |> G.empty
+                    |> Expect.equal True
+            )
+        , test
+            "map over empty"
+            (\_ ->
+                G.map ((+) 1) emptyG
+                    |> G.take 1
+                    |> Expect.equal []
+            )
+        , test
+            "filter over empty"
+            (\_ ->
+                G.filter (\_ -> True) emptyG
+                    |> G.take 1
+                    |> Expect.equal []
+            )
+        , test
+            "scanl over empty"
+            (\_ ->
+                G.scanl (+) 0 emptyG
+                    |> G.take 1
+                    |> Expect.equal []
+            )
+        , test
+            "scanl over empty |> head"
+            (\_ ->
+                G.scanl (+) 0 emptyG
+                    |> G.head
+                    |> Expect.equal Nothing
+            )
+        , test
+            "scanl over empty |> tail"
+            (\_ ->
+                G.scanl (+) 0 emptyG
+                    |> G.tail
+                    |> G.empty
+                    |> Expect.equal True
+            )
+        ]
+
+
+
+--------------------------------------------------------------------------------
+
+
 testTransforms : Test
 testTransforms =
     describe "Test transformations"
