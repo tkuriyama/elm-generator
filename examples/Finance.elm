@@ -26,15 +26,17 @@ compound r =
 
 {- An example combining income and expense streams with interest rate calculations.
 
-            In each period, some income is received, offset by some expenses. At the end of each period, the remaining balance (net income) is invested at some interest rate and will grow accordingly in the next period.
+   In each period, some income is received, offset by some expenses. At the end of each period, the remaining balance (net income) is invested at some interest rate and will grow accordingly in the next period.
 
-         For example, if the net income is 20 per period, and the interest rate per period is 3%, assets at the end of each period should be :
+   For example, if the net income is 20 per period, and the interest rate per period is 3%, assets at the end of each period should be :
 
       1: 20
       2: (20 * 1.03) + 20 = 40.6
       3: (40.6 * 1.03) + 20 ...
 
    The below example models cyclical interest rates.
+
+    netAssets |> G.take 10 == [20, 40.6, 62.224... ]
 -}
 
 
@@ -64,10 +66,11 @@ interestRates =
 
 
 
-{- Net present value.
+{- Net present value (NPV).
 
-   An example of using the `compound` generator to generate discounted cash flows. The `npv` function collects the cash flows for a finite period and sums them to arrive at the net present value.
+   An example of using the `compound` generator to generate discounted cash flows (DCF). The `npv` function collects the cash flows for a finite period and sums them to arrive at the net present value.
 
+   The below example `npv` shows modeling the NPV of the DCFs by summing the first fifty years.
 -}
 
 
