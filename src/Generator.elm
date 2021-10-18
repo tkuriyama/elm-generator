@@ -1,5 +1,6 @@
 module Generator exposing
-    ( Generator
+    ( CycleGenerator
+    , Generator
     , advance
     , cons
     , cycle
@@ -92,9 +93,11 @@ iterate f value =
     --> [1, 2, 3, 1, 2, 3]
 
 -}
-cycle :
-    List a
-    -> Generator a ( List a, a, List a )
+type alias CycleGenerator a =
+    Generator a ( List a, a, List a )
+
+
+cycle : List a -> CycleGenerator a
 cycle values =
     case values of
         [] ->
