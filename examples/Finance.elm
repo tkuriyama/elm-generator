@@ -14,7 +14,7 @@ import Generator as G
 
    For example, an interest rate of 6% will double the initial investment in approx 12 years:
 
-    G.take 12 (compound 1.06) ~ 2.012
+    G.take 12 (compound 1.06) ~ [1, 1.06, ... 2.012]
 -}
 
 
