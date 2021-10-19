@@ -16,13 +16,13 @@ import Generator exposing (..)
 
 spec0 : Test.Test
 spec0 =
-    Test.test "#mergeWith: \n\n    fromList [ 1, 3, 4, 8 ]\n    |> (\\g1 -> ( g1, fromList [ 2, 3, 5, 7 ] ))\n    |> (\\(g1, g2) -> mergeWith (\\a b -> a < b) g1 g2)\n    |> toList\n    --> [1, 2, 3, 3, 4, 5, 7, 8]" <|
+    Test.test "#mergeWith: \n\n    fromList [ 1, 3, 4, 8 ]\n    |> (\\g1 -> ( g1, fromList [ 2, 3, 5, 7 ] ))\n    |> (\\(g1, g2) -> mergeWith (<) g1 g2)\n    |> toList\n    --> [1, 2, 3, 3, 4, 5, 7, 8]" <|
         \() ->
             Expect.equal
                 (
                 fromList [ 1, 3, 4, 8 ]
                 |> (\g1 -> ( g1, fromList [ 2, 3, 5, 7 ] ))
-                |> (\(g1, g2) -> mergeWith (\a b -> a < b) g1 g2)
+                |> (\(g1, g2) -> mergeWith (<) g1 g2)
                 |> toList
                 )
                 (

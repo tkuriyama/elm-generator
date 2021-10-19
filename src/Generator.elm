@@ -497,7 +497,7 @@ The merge rule is a predicate function that compares the values emitted by the t
 
     fromList [ 1, 3, 4, 8 ]
     |> (\g1 -> ( g1, fromList [ 2, 3, 5, 7 ] ))
-    |> (\(g1, g2) -> mergeWith (\a b -> a < b) g1 g2)
+    |> (\(g1, g2) -> mergeWith (<) g1 g2)
     |> toList
     --> [1, 2, 3, 3, 4, 5, 7, 8]
 

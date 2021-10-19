@@ -214,3 +214,44 @@ testZip =
                        )
             )
         ]
+
+
+
+--------------------------------------------------------------------------------
+
+
+testMerge : Test
+testMerge =
+    describe "Test merging works as expected"
+        [ test
+            "filter and merge together"
+            (\_ ->
+                G.iterate ((+) 1) 1
+                    |> G.filter ((<) 3)
+                    -- [11, 12...]
+                    |> G.mergeWith (<) (G.iterate ((+) 1) 1)
+                    |> G.take 5
+                    |> Expect.equal [ 1, 2, 3, 4, 4 ]
+            )
+        , test
+            "merge empty generators -> empty"
+            (\_ ->
+                G.fromList []
+                    |> (\g ->
+                            G.mergeWith (<) g g
+                                |> G.empty
+                                |> Expect.equal True
+                       )
+            )
+        , test
+            "merge filtered empty list -> empty"
+            (\_ ->
+                G.fromList [ 1, 2, 3 ]
+                    |> G.filter ((<) 3)
+                    |> (\g ->
+                            G.mergeWith (<) g g
+                                |> G.take 3
+                                |> Expect.equal []
+                       )
+            )
+        ]
