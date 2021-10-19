@@ -16,6 +16,7 @@ module Generator exposing
     , intersperse
     , iterate
     , map
+    , mergeWith
     , prefix
     , repeat
     , scanl
@@ -27,9 +28,9 @@ module Generator exposing
     , zipWith
     )
 
-{-| This library provides a way to simulate lazy lists, or streams, in teh form of generators.
+{-| This library provides a way to simulate lazy lists, or streams, in the form of generators.
 
-Generators are constructed with some initial state and a `next` function, which takes the state and returns the next value to emit, as well as the
+Generators are constructed with some initial state and a `next` function, which takes the state and returns the next value to emit, as well as the successor state.
 
 -}
 
@@ -466,14 +467,6 @@ zipWith f generator1 generator2 =
     Utils.bind2 (zipWithHelper f) generator1 generator2
 
 
-
--- case ( generator1, generator2 ) of
---     ( Active g1, Active g2 ) ->
---         zipWithHelper f g1 g2
---     ( _, _ ) ->
---         Empty
-
-
 zipWithHelper :
     (a -> c -> e)
     -> GeneratorRecord a b
@@ -488,6 +481,61 @@ zipWithHelper f g1 g2 =
             case ( nextVal g1Next state1, nextVal g2Next state2 ) of
                 ( Just ( Just value1, state1_ ), Just ( Just value2, state2_ ) ) ->
                     Just ( Just <| f value1 value2, ( state1_, state2_ ) )
+
+                ( _, _ ) ->
+                    Nothing
+    in
+    Active
+        { state = ( g1.state, g2.state )
+        , next = next_ g1.next g2.next
+        }
+
+
+{-| Return a new generator that merges values emitted by two generators.
+
+The merge rule is a predicate function that compares the values emitted by the two generators and chooses the left value if the predicate is true. Only the generator with the chosen value will be advanced.
+
+    fromList [ 1, 3, 4, 8 ]
+    |> (\g1 -> ( g1, fromList [ 2, 3, 5, 7 ] ))
+    |> (\(g1, g2) -> mergeWith (\a b -> a < b) g1 g2)
+    |> toList
+    --> [1, 2, 3, 3, 4, 5, 7, 8]
+
+-}
+mergeWith :
+    (a -> a -> Bool)
+    -> Generator a b
+    -> Generator a d
+    -> Generator a ( b, d )
+mergeWith chooseLeft generator1 generator2 =
+    Utils.bind2 (mergeWithHelper chooseLeft) generator1 generator2
+
+
+mergeWithHelper :
+    (a -> a -> Bool)
+    -> GeneratorRecord a b
+    -> GeneratorRecord a d
+    -> Generator a ( b, d )
+mergeWithHelper chooseLeft g1 g2 =
+    let
+        nextVal =
+            Utils.getNextValue
+
+        next_ g1Next g2Next ( state1, state2 ) =
+            case ( nextVal g1Next state1, nextVal g2Next state2 ) of
+                ( Just ( Just value1, state1_ ), Just ( Just value2, state2_ ) ) ->
+                    case chooseLeft value1 value2 of
+                        True ->
+                            Just ( Just value1, ( state1_, state2 ) )
+
+                        False ->
+                            Just ( Just value2, ( state1, state2_ ) )
+
+                ( Just ( Just value1, state1_ ), _ ) ->
+                    Just ( Just value1, ( state1_, state2 ) )
+
+                ( _, Just ( Just value2, state2_ ) ) ->
+                    Just ( Just value2, ( state1, state2_ ) )
 
                 ( _, _ ) ->
                     Nothing
