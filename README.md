@@ -27,7 +27,7 @@ Generators can be transformed and combined (e.g. `map`, `zip`, etc) in constant 
 
 Unlike streams, generators can be either finite or infinite. A finite generator that has reached its logical end is "empty" and simply emits no further values. (The library supplies an `empty` predicate function, but it should rarely be needed as library functions are agnostic to finite or infinite generators.)
 
-Beyond the module documentation, the repo contains some `examples`[https://github.com/tkuriyama/elm-generator/tree/master/examples] for how to use generators.
+**Examples**: beyond the module documentation, the repo contains some [`examples`](https://github.com/tkuriyama/elm-generator/tree/master/examples) for how to use generators.
 
 
 Note that the Elm compiler is still strict. So, even using the generator interface, it's not possible to write infinitely recursive functions that work in languages like Haskell. For example, an alternative formulation would be required for this snippet:
