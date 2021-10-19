@@ -27,7 +27,11 @@ module Generator exposing
     , zipWith
     )
 
-{-| -}
+{-| This library provides a way to simulate lazy lists, or streams, in teh form of generators.
+
+Generators are constructed with some initial state and a `next` function, which takes the state and returns the next value to emit, as well as the
+
+-}
 
 import Internal.Types as Types exposing (..)
 import Internal.Utils as Utils
