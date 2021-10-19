@@ -39,10 +39,8 @@ ruler =
 
 In addition to inline tests in the module documentation, the repo contains some [`examples`](https://github.com/tkuriyama/elm-generator/tree/master/examples) for how to use generators.
 
-
-
 ## Build
 
-To follow the "full" build for this repo, run the commands in the `all.do` script (`redo all` if you have [`redo`](https://redo.readthedocs.io/en/latest/), or run it as a shell script like `sh all.do`).
+For developers: to follow the "full" build for this repo, run the commands in the `all.do` script (`redo all` if you have [`redo`](https://redo.readthedocs.io/en/latest/), or run it as a shell script like `sh all.do`).
 
 See [this page](https://tkuriyama.github.io/general/2021/04/22/Building-Elm.html) for an explanation of the build steps and dependencies.
