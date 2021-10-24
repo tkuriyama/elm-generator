@@ -26,4 +26,4 @@ Modeling basic financial math using streams:
 
 Extending generator for a domain-specific use case:
 
-- [Timeseries]()
+- [Timeseries](https://github.com/tkuriyama/elm-generator/blob/master/examples/Timeseries.elm)
