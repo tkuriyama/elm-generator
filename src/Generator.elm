@@ -549,7 +549,19 @@ mergeHelper chooseLeft g1 g2 =
 
 {-| Return a new generator that merges two generators with a custom function.
 
-This is a more expressive way to merge two generators, compared to the simple left or right choice that `merge` provides. The merge function takes two values and returns a triple of (merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to the merged value type (in case either generator is empty).
+This is a expressive way to combine two generators, in case neither `zipWith` nor `merge` are sufficient. The merge function takes two values and returns a triple of (merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to the merged value type (in case either generator is empty).
+
+    -- a trivial example
+    mergeWith
+        (\x xs -> (x :: xs, True, True))
+        (\x -> [x])
+        identity
+        (fromList [1, 2, 3, 4])
+        (fromList [[10], [11], [12]])
+     |> take 10
+     --> [[1, 10], [2, 11], [3, 12], [4]]
+
+Also see `examples/Timeseries.elm`.
 
 -}
 mergeWith :
