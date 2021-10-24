@@ -16,6 +16,7 @@ module Generator exposing
     , intersperse
     , iterate
     , map
+    , merge
     , mergeWith
     , prefix
     , repeat
@@ -491,32 +492,32 @@ zipWithHelper f g1 g2 =
         }
 
 
-{-| Return a new generator that merges values emitted by two generators.
+{-| Return a new generator that merges two generators.
 
 The merge rule is a predicate function that compares the values emitted by the two generators and chooses the left value if the predicate is true. Only the generator with the chosen value will be advanced.
 
     fromList [ 1, 3, 4, 8 ]
     |> (\g1 -> ( g1, fromList [ 2, 3, 5, 7 ] ))
-    |> (\(g1, g2) -> mergeWith (<) g1 g2)
+    |> (\(g1, g2) -> merge (<) g1 g2)
     |> toList
     --> [1, 2, 3, 3, 4, 5, 7, 8]
 
 -}
-mergeWith :
+merge :
     (a -> a -> Bool)
     -> Generator a b
     -> Generator a d
     -> Generator a ( b, d )
-mergeWith chooseLeft generator1 generator2 =
-    Utils.bind2 (mergeWithHelper chooseLeft) generator1 generator2
+merge chooseLeft generator1 generator2 =
+    Utils.bind2 (mergeHelper chooseLeft) generator1 generator2
 
 
-mergeWithHelper :
+mergeHelper :
     (a -> a -> Bool)
     -> GeneratorRecord a b
     -> GeneratorRecord a d
     -> Generator a ( b, d )
-mergeWithHelper chooseLeft g1 g2 =
+mergeHelper chooseLeft g1 g2 =
     let
         nextVal =
             Utils.getNextValue
@@ -536,6 +537,68 @@ mergeWithHelper chooseLeft g1 g2 =
 
                 ( _, Just ( Just value2, state2_ ) ) ->
                     Just ( Just value2, ( state1, state2_ ) )
+
+                ( _, _ ) ->
+                    Nothing
+    in
+    Active
+        { state = ( g1.state, g2.state )
+        , next = next_ g1.next g2.next
+        }
+
+
+{-| Return a new generator that merges two generators with a custom function.
+
+This is a more expressive way to merge two generators, compared to the simple left or right choice that `merge` provides. The merge function takes two values and returns a triple of (merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to the merged value type (in case either generator is empty).
+
+-}
+mergeWith :
+    (a -> c -> ( e, Bool, Bool ))
+    -> (a -> e)
+    -> (c -> e)
+    -> Generator a b
+    -> Generator c d
+    -> Generator e ( b, d )
+mergeWith applyMerge applyLeft applyRight generator1 generator2 =
+    Utils.bind2
+        (mergeWithHelper applyMerge applyLeft applyRight)
+        generator1
+        generator2
+
+
+mergeWithHelper :
+    (a -> c -> ( e, Bool, Bool ))
+    -> (a -> e)
+    -> (c -> e)
+    -> GeneratorRecord a b
+    -> GeneratorRecord c d
+    -> Generator e ( b, d )
+mergeWithHelper applyMerge applyLeft applyRight g1 g2 =
+    let
+        nextVal =
+            Utils.getNextValue
+
+        next_ g1Next g2Next ( state1, state2 ) =
+            case ( nextVal g1Next state1, nextVal g2Next state2 ) of
+                ( Just ( Just value1, state1_ ), Just ( Just value2, state2_ ) ) ->
+                    case applyMerge value1 value2 of
+                        ( value, True, True ) ->
+                            Just ( Just value, ( state1_, state2_ ) )
+
+                        ( value, True, False ) ->
+                            Just ( Just value, ( state1_, state2 ) )
+
+                        ( value, False, True ) ->
+                            Just ( Just value, ( state1, state2_ ) )
+
+                        ( value, False, False ) ->
+                            Just ( Just value, ( state1, state2 ) )
+
+                ( Just ( Just value1, state1_ ), _ ) ->
+                    Just ( Just <| applyLeft value1, ( state1_, state2 ) )
+
+                ( _, Just ( Just value2, state2_ ) ) ->
+                    Just ( Just <| applyRight value2, ( state1, state2_ ) )
 
                 ( _, _ ) ->
                     Nothing
