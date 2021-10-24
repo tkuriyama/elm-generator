@@ -229,7 +229,7 @@ testMerge =
                 G.iterate ((+) 1) 1
                     |> G.filter ((<) 3)
                     -- [11, 12...]
-                    |> G.mergeWith (<) (G.iterate ((+) 1) 1)
+                    |> G.merge (<) (G.iterate ((+) 1) 1)
                     |> G.take 5
                     |> Expect.equal [ 1, 2, 3, 4, 4 ]
             )
@@ -238,7 +238,7 @@ testMerge =
             (\_ ->
                 G.fromList []
                     |> (\g ->
-                            G.mergeWith (<) g g
+                            G.merge (<) g g
                                 |> G.empty
                                 |> Expect.equal True
                        )
@@ -249,7 +249,7 @@ testMerge =
                 G.fromList [ 1, 2, 3 ]
                     |> G.filter ((<) 3)
                     |> (\g ->
-                            G.mergeWith (<) g g
+                            G.merge (<) g g
                                 |> G.take 3
                                 |> Expect.equal []
                        )
