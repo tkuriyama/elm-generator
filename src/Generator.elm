@@ -549,7 +549,7 @@ mergeHelper chooseLeft g1 g2 =
 
 {-| Return a new generator that merges two generators with a custom function. This is the most expressive way to combine two generators, with control over whether to emit values and whether to advance either generator.
 
-The merge function takes two values and returns a triple of (merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to the merged value type (in case either generator is empty).
+The merge function takes two values and returns a triple of (maybe a merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to maybes of the merged value type (in case either generator is empty). Maybe is used to allow values to be skipped entirely.
 
     -- a trivial example
     mergeWith
