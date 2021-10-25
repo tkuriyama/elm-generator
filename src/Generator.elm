@@ -547,15 +547,15 @@ mergeHelper chooseLeft g1 g2 =
         }
 
 
-{-| Return a new generator that merges two generators with a custom function.
+{-| Return a new generator that merges two generators with a custom function. This is the most expressive way to combine two generators, with control over whether to emit values and whether to advance either generator.
 
-This is a expressive way to combine two generators, in case neither `zipWith` nor `merge` are sufficient. The merge function takes two values and returns a triple of (merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to the merged value type (in case either generator is empty).
+The merge function takes two values and returns a triple of (merged value, bool to advance left generator, bool to advance the right generator). Since the new generator may emit values of any type, additional functions are required to convert the left and right generator values to the merged value type (in case either generator is empty).
 
     -- a trivial example
     mergeWith
-        (\x xs -> (x :: xs, True, True))
-        (\x -> [x])
-        identity
+        (\x xs -> (Just <| x :: xs, True, True))
+        (\x -> Just [x])
+        (\xs -> Just xs)
         (fromList [1, 2, 3, 4])
         (fromList [[10], [11], [12]])
      |> take 10
@@ -565,9 +565,9 @@ Also see `examples/Timeseries.elm`.
 
 -}
 mergeWith :
-    (a -> c -> ( e, Bool, Bool ))
-    -> (a -> e)
-    -> (c -> e)
+    (a -> c -> ( Maybe e, Bool, Bool ))
+    -> (a -> Maybe e)
+    -> (c -> Maybe e)
     -> Generator a b
     -> Generator c d
     -> Generator e ( b, d )
@@ -579,9 +579,9 @@ mergeWith applyMerge applyLeft applyRight generator1 generator2 =
 
 
 mergeWithHelper :
-    (a -> c -> ( e, Bool, Bool ))
-    -> (a -> e)
-    -> (c -> e)
+    (a -> c -> ( Maybe e, Bool, Bool ))
+    -> (a -> Maybe e)
+    -> (c -> Maybe e)
     -> GeneratorRecord a b
     -> GeneratorRecord c d
     -> Generator e ( b, d )
@@ -594,23 +594,23 @@ mergeWithHelper applyMerge applyLeft applyRight g1 g2 =
             case ( nextVal g1Next state1, nextVal g2Next state2 ) of
                 ( Just ( Just value1, state1_ ), Just ( Just value2, state2_ ) ) ->
                     case applyMerge value1 value2 of
-                        ( value, True, True ) ->
-                            Just ( Just value, ( state1_, state2_ ) )
+                        ( maybeValue, True, True ) ->
+                            Just ( maybeValue, ( state1_, state2_ ) )
 
-                        ( value, True, False ) ->
-                            Just ( Just value, ( state1_, state2 ) )
+                        ( maybeValue, True, False ) ->
+                            Just ( maybeValue, ( state1_, state2 ) )
 
-                        ( value, False, True ) ->
-                            Just ( Just value, ( state1, state2_ ) )
+                        ( maybeValue, False, True ) ->
+                            Just ( maybeValue, ( state1, state2_ ) )
 
-                        ( value, False, False ) ->
-                            Just ( Just value, ( state1, state2 ) )
+                        ( maybeValue, False, False ) ->
+                            Just ( maybeValue, ( state1, state2 ) )
 
                 ( Just ( Just value1, state1_ ), _ ) ->
-                    Just ( Just <| applyLeft value1, ( state1_, state2 ) )
+                    Just ( applyLeft value1, ( state1_, state2 ) )
 
                 ( _, Just ( Just value2, state2_ ) ) ->
-                    Just ( Just <| applyRight value2, ( state1, state2_ ) )
+                    Just ( applyRight value2, ( state1, state2_ ) )
 
                 ( _, _ ) ->
                     Nothing

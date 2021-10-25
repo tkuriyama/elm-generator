@@ -4,7 +4,7 @@ module Timeseries exposing (..)
 
 The `Generator.merge` and `Generator.mergeWith` functions are wrapped to implement merging and aligning functionality specific to timeseries, as in the `merged` example.
 
-    > T.merged |> T.showTimeseriesSet 10
+    > merged |> showTimeseriesSet 10
             One     Two     Three
     1       1.00    1.00    -
      2       1.10    1.10    1.10
@@ -129,19 +129,19 @@ alignToSetHelper length g gSet =
         applyMerge ( time, value ) ( time2, values ) =
             case ( time == time2, time > time2 ) of
                 ( True, _ ) ->
-                    ( ( time, value :: values ), True, True )
+                    ( Just ( time, value :: values ), True, True )
 
                 ( False, True ) ->
-                    ( ( time2, Nothing :: values ), False, True )
+                    ( Just ( time2, Nothing :: values ), False, True )
 
                 ( False, False ) ->
-                    ( ( time, value :: List.repeat length Nothing ), True, False )
+                    ( Just ( time, value :: List.repeat length Nothing ), True, False )
 
         leftIdentity ( time, value ) =
-            ( time, value :: List.repeat length Nothing )
+            Just ( time, value :: List.repeat length Nothing )
 
         rightIdentity ( time, values ) =
-            ( time, Nothing :: values )
+            Just ( time, Nothing :: values )
     in
     G.mergeWith applyMerge leftIdentity rightIdentity g gSet
 

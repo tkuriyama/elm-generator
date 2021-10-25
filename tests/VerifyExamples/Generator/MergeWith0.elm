@@ -16,15 +16,15 @@ import Generator exposing (..)
 
 spec0 : Test.Test
 spec0 =
-    Test.test "#mergeWith: \n\n    -- a trivial example\n    mergeWith\n        (\\x xs -> (x :: xs, True, True))\n        (\\x -> [x])\n        identity\n        (fromList [1, 2, 3, 4])\n        (fromList [[10], [11], [12]])\n     |> take 10\n    --> [[1, 10], [2, 11], [3, 12], [4]]" <|
+    Test.test "#mergeWith: \n\n    -- a trivial example\n    mergeWith\n        (\\x xs -> (Just <| x :: xs, True, True))\n        (\\x -> Just [x])\n        (\\xs -> Just xs)\n        (fromList [1, 2, 3, 4])\n        (fromList [[10], [11], [12]])\n     |> take 10\n    --> [[1, 10], [2, 11], [3, 12], [4]]" <|
         \() ->
             Expect.equal
                 (
                 -- a trivial example
                 mergeWith
-                    (\x xs -> (x :: xs, True, True))
-                    (\x -> [x])
-                    identity
+                    (\x xs -> (Just <| x :: xs, True, True))
+                    (\x -> Just [x])
+                    (\xs -> Just xs)
                     (fromList [1, 2, 3, 4])
                     (fromList [[10], [11], [12]])
                  |> take 10
