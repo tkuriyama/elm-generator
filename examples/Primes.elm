@@ -13,11 +13,11 @@ import List.Extra as LE
 
 {-| Primes by trial division.
 
-    > trialDivisionNaive |> G.take 10
-    [2,3,5,7,9,11,13,17,19,23,29]
+    G.take 10 trialDivisionNaive
+        == [ 2, 3, 5, 7, 9, 11, 13, 17, 19, 23, 29 ]
 
-    > trialDivisionWheel |> G.take 10
-    [2,3,5,7,9,11,13,17,19,23,29]
+    G.take 10 trialDivisionWheel
+        == [ 2, 3, 5, 7, 9, 11, 13, 17, 19, 23, 29 ]
 
 The idea of using a "wheel" for candidates to check comes from:
 <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>
