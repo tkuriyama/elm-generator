@@ -10,7 +10,7 @@ import Test exposing (..)
 --------------------------------------------------------------------------------
 
 
-testPrimes =
+testPrimes100 =
     let
         first100 =
             [ 2
@@ -116,11 +116,18 @@ testPrimes =
             ]
     in
     describe
-        "Test prime generators"
+        "Test prime generators against first 100 primes"
         [ test
-            "Test trialDivisionPrimes"
+            "Test trialDivisionNaive"
             (\_ ->
-                trialDivisionPrimes
+                trialDivisionNaive
+                    |> G.take 100
+                    |> Expect.equal first100
+            )
+        , test
+            "Test trialDivisionWheel"
+            (\_ ->
+                trialDivisionNaive
                     |> G.take 100
                     |> Expect.equal first100
             )
