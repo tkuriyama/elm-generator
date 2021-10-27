@@ -28,7 +28,7 @@ nextTrialDivisionPrime lastPrime primes =
             lastPrime + 2
 
         primes_ =
-            LE.dropWhile (\p -> p * p > guess) primes
+            LE.dropWhile (\p -> p * p >= guess) primes
     in
     case trialDivision guess primes_ of
         True ->
