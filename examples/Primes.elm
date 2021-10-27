@@ -19,7 +19,7 @@ import List.Extra as LE
     G.take 10 trialDivisionWheel
         == [ 2, 3, 5, 7, 9, 11, 13, 17, 19, 23, 29 ]
 
-The idea of using a "wheel" for candidates to check comes from:
+The idea of using a hard-coded "wheel" for candidates to check comes from:
 <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>
 
 -}
@@ -31,10 +31,14 @@ trialDivisionWheel =
     trialDivisionPrimes [ 2, 3, 5, 7, 11 ] wheel2357
 
 
+type alias TrialDivisionState b =
+    ( Int, List Int, G.Generator Int b )
+
+
 trialDivisionPrimes :
     List Int
     -> G.Generator Int b
-    -> G.Generator Int ( ( Int, List Int, G.Generator Int b ), List Int )
+    -> G.Generator Int ( TrialDivisionState b, List Int )
 trialDivisionPrimes seed incrementWheel =
     let
         state0 =
@@ -47,9 +51,7 @@ trialDivisionPrimes seed incrementWheel =
         |> G.prefix seed
 
 
-trialDivisionNext :
-    ( Int, List Int, G.Generator Int b )
-    -> Maybe ( Int, ( Int, List Int, G.Generator Int b ) )
+trialDivisionNext : TrialDivisionState b -> Maybe ( Int, TrialDivisionState b )
 trialDivisionNext ( lastPrime, primes, wheel ) =
     let
         ( inc, wheel_ ) =
