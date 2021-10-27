@@ -23,9 +23,10 @@ import String.Format as Fmt
 
 
 --------------------------------------------------------------------------------
-{- For simplicity of example, time is represented by an Int. -}
 
 
+{-| For simplicity of example, time is represented by an Int.
+-}
 type alias Timeseries b =
     G.Generator ( Int, Maybe Float ) b
 
@@ -38,9 +39,10 @@ type alias TimeseriesSet b =
 
 
 --------------------------------------------------------------------------------
-{- Example data -}
 
 
+{-| Example data
+-}
 merged =
     merge timeseries3 timeseries4
         |> toSet "Three"
@@ -86,9 +88,10 @@ timeseries4 =
 
 
 --------------------------------------------------------------------------------
-{- Merge two ordered timeseries. -}
 
 
+{-| Merge two ordered timeseries.
+-}
 merge : Timeseries b -> Timeseries c -> Timeseries ( b, c )
 merge tsLeft tsRight =
     G.merge
@@ -97,10 +100,8 @@ merge tsLeft tsRight =
         tsRight
 
 
-
-{- Align two ordered timeseries. -}
-
-
+{-| Align two ordered timeseries.
+-}
 toSet : String -> Timeseries b -> TimeseriesSet b
 toSet name ts =
     { names = [ name ]
@@ -146,10 +147,8 @@ alignToSetHelper length g gSet =
     G.mergeWith applyMerge leftIdentity rightIdentity g gSet
 
 
-
-{- TimeseriesSet -> String -}
-
-
+{-| TimeseriesSet -> String
+-}
 showTimeseriesSet : Int -> TimeseriesSet b -> String
 showTimeseriesSet n tsSet =
     "{{header}}\n{{body}}"

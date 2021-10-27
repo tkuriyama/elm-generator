@@ -8,38 +8,37 @@ import Generator as G
 
 
 --------------------------------------------------------------------------------
-{- Interest rate compounding.
 
-     After n periods, a unit investment of 1 will have observed the compound growth of (1 * r_1) * r_2 * ... r_n
 
-   For example, an interest rate of 6% will double the initial investment in approx 12 years:
+{-| Interest rate compounding.
+
+After n periods, a unit investment of 1 will have observed the compound growth of (1 \* r\_1) \* r\_2 \* ... r\_n
+
+For example, an interest rate of 6% will double the initial investment in approx 12 years:
 
     G.take 12 (compound 1.06) ~ [1, 1.06, ... 2.012]
+
 -}
-
-
 compound : Float -> G.Generator Float Float
 compound r =
     G.iterate (\value -> value * r) (1 * r)
 
 
+{-| An example combining income and expense streams with interest rate calculations.
 
-{- An example combining income and expense streams with interest rate calculations.
+In each period, some income is received, offset by some expenses. At the end of each period, the remaining balance (net income) is invested at some interest rate and will grow accordingly in the next period.
 
-   In each period, some income is received, offset by some expenses. At the end of each period, the remaining balance (net income) is invested at some interest rate and will grow accordingly in the next period.
-
-   For example, if the net income is 20 per period, and the interest rate per period is 3%, assets at the end of each period should be :
+For example, if the net income is 20 per period, and the interest rate per period is 3%, assets at the end of each period should be :
 
       1: 20
       2: (20 * 1.03) + 20 = 40.6
       3: (40.6 * 1.03) + 20 ...
 
-   The below example models cyclical interest rates.
+The below example models cyclical interest rates.
 
     netAssets |> G.take 10 == [20, 40.6, 62.224... ]
+
 -}
-
-
 netAssets =
     let
         tally priorAssets ( interestRate, netIncome ) =
@@ -65,15 +64,13 @@ interestRates =
     G.cycle [ 1.02, 1.03, 1.04 ]
 
 
+{-| Net present value (NPV).
 
-{- Net present value (NPV).
+An example of using the `compound` generator to generate discounted cash flows (DCF). The `npv` function collects the cash flows for a finite period and sums them to arrive at the net present value.
 
-   An example of using the `compound` generator to generate discounted cash flows (DCF). The `npv` function collects the cash flows for a finite period and sums them to arrive at the net present value.
+The below example `npv` shows modeling the NPV of the DCFs by summing the first fifty years.
 
-   The below example `npv` shows modeling the NPV of the DCFs by summing the first fifty years.
 -}
-
-
 npv =
     dcf 1.03 (G.prefix [ 1, 3, 9 ] <| G.repeat 10)
         |> G.take 50

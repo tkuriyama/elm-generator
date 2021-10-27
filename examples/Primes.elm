@@ -1,24 +1,28 @@
 module Primes exposing (..)
 
+{-| Exampls of prime number generators.
+-}
+
 import Generator as G
 import List.Extra as LE
 
 
 
 --------------------------------------------------------------------------------
-{- Primes by trial division.
 
-      > trialDivisionNaive |> G.take 10
-      [2,3,5,7,9,11,13,17,19,23,29]
 
-       > trialDivisionWheel |> G.take 10
-      [2,3,5,7,9,11,13,17,19,23,29]
+{-| Primes by trial division.
 
-   The idea of using a "wheel" for candidates to check comes from:
-   https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf
+    > trialDivisionNaive |> G.take 10
+    [2,3,5,7,9,11,13,17,19,23,29]
+
+    > trialDivisionWheel |> G.take 10
+    [2,3,5,7,9,11,13,17,19,23,29]
+
+The idea of using a "wheel" for candidates to check comes from:
+<https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>
+
 -}
-
-
 trialDivisionNaive =
     trialDivisionPrimes [ 2, 3 ] wheel2
 
