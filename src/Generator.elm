@@ -30,7 +30,9 @@ module Generator exposing
 @docs map, filter, scanl
 
 
-# Zipping / Combining
+# Zipping and Combining
+
+Note that a zipped generator will terminate when either of its parent generators becomes empty, whereas a merged generator will emit values until both its parent generators are empty.
 
 @docs zip, zipWith, merge, mergeWith, intersperse, interleave
 
@@ -88,7 +90,7 @@ repeat value =
     init () (\_ -> Just ( value, () ))
 
 
-{-| An infinite generator that repeatedly applies the given function to the starting value.
+{-| An infinite generator that repeatedly applies the given function to emit successive values.
 
     iterate ((+) 1) 1
     |> take 5
@@ -106,7 +108,7 @@ type alias CycleGenerator a =
     Generator a ( List a, a, List a )
 
 
-{-| An infinite generator that repeated cycles through the given values.
+{-| An infinite generator that repeated cycles through the list of given values.
 
     cycle [1, 2, 3]
     |> take 6
@@ -380,10 +382,15 @@ map f =
 {-| Return a new generator that filters every value emitted.
 
     iterate ((+) 1) 1
-    |> map ((+) 1)
     |> filter ((<) 3)
     |> take 5
     --> [4, 5, 6, 7, 8]
+
+**Note**: using `filter` without care may produce generators that run forever. For example, this will not terminate:
+
+    iterate ((+) 1) 0
+        |> filter ((>) 0)
+        |> take 1
 
 -}
 filter : (a -> Bool) -> Generator a b -> Generator a b
@@ -415,7 +422,7 @@ filter f =
 
     fromList [ 1, 2, 3 ]
     |> scanl (+) 0
-    |> take 4
+    |> take 3
     --> [1, 3, 6]
 
 -}
@@ -569,7 +576,7 @@ The merge function takes two values and returns a triple of (maybe a merged valu
      |> take 10
      --> [[1, 10], [2, 11], [3, 12], [4]]
 
-Also see `examples/Timeseries.elm`.
+Also see [`Examples/Timeseries.elm`](https://github.com/tkuriyama/elm-generator/blob/master/src/Examples/Timeseries.elm).
 
 -}
 mergeWith :
