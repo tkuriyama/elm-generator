@@ -153,7 +153,7 @@ incrementalSieveNext ( lastPrime, map, wheel ) =
 
         Just composites ->
             incrementalSieveNext
-                ( guess, updateMap guess composites map, wheel_ )
+                ( guess, updateComposites guess composites map, wheel_ )
 
 
 insertNext : Int -> G.Generator Int b -> GeneratorDict b -> GeneratorDict b
@@ -163,12 +163,12 @@ insertNext n generator =
         [ G.map ((*) n) generator ]
 
 
-updateMap :
+updateComposites :
     Int
     -> List (G.Generator Int b)
     -> GeneratorDict b
     -> GeneratorDict b
-updateMap guess compositeGenerators =
+updateComposites guess compositeGenerators =
     let
         reinsert compositeGenerator map_ =
             let
