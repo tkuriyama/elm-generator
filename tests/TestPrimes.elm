@@ -118,16 +118,30 @@ testPrimes100 =
     describe
         "Test prime generators against first 100 primes"
         [ test
-            "Test trialDivisionNaive"
+            "Test trialDivision"
             (\_ ->
-                trialDivisionNaive
+                trialDivisionWheel2
                     |> G.take 100
                     |> Expect.equal first100
             )
         , test
             "Test trialDivisionWheel"
             (\_ ->
-                trialDivisionNaive
+                trialDivisionWheel2357
+                    |> G.take 100
+                    |> Expect.equal first100
+            )
+        , test
+            "Test incrementalSieve"
+            (\_ ->
+                incrementalSieveWheel2
+                    |> G.take 100
+                    |> Expect.equal first100
+            )
+        , test
+            "Test incrementalSieveWheel"
+            (\_ ->
+                incrementalSieveWheel2357
                     |> G.take 100
                     |> Expect.equal first100
             )
