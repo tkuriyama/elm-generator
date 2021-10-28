@@ -1,6 +1,10 @@
 module Generator exposing
-    ( Generator
-    , CycleGenerator, advance, cons, cycle, drop, dropWhile, empty, filter, foldl, fromList, head, init, interleave, intersperse, iterate, map, merge, mergeWith, prefix, repeat, scanl, tail, take, takeWhile, toList, zip, zipWith
+    ( Generator, CycleGenerator
+    , init, repeat, iterate, cycle, cons, prefix
+    , advance, head, tail, take, takeWhile, drop, dropWhile, empty
+    , map, filter, scanl
+    , zip, zipWith, merge, mergeWith, intersperse, interleave
+    , fromList, toList, foldl
     )
 
 {-| This library provides a way to simulate lazy lists, or streams, in the form of generators.
@@ -8,9 +12,32 @@ module Generator exposing
 
 # Definition
 
-@docs Generator
+@docs Generator, CycleGenerator
 
-Generators are constructed with some initial state and a `next` function, which takes the state and returns the next value to emit, as well as the successor state.
+
+# Constructors
+
+@docs init, repeat, iterate, cycle, cons, prefix
+
+
+# Basic Manipulation
+
+@docs advance, head, tail, take, takeWhile, drop, dropWhile, empty
+
+
+# Transformations
+
+@docs map, filter, scanl
+
+
+# Zipping / Combining
+
+@docs zip, zipWith, merge, mergeWith, intersperse, interleave
+
+
+# Finite Generators
+
+@docs fromList, toList, foldl
 
 -}
 
@@ -18,10 +45,10 @@ import Internal.Types as Types exposing (..)
 import Internal.Utils as Utils
 
 
-{-| A generator is parameterized with: (1) the type of value it emits, (2) the type of its internal state. In general, users only care about the first, and the second is merely something that's required for type checking.
+{-| A generator is parameterized with: (a) the type of value it emits, (b) the type of its internal state. In general, users only care about the former, and the latter is merely something that's required for type checking.
 -}
-type alias Generator value state =
-    Types.Generator value state
+type alias Generator a b =
+    Types.Generator a b
 
 
 
@@ -29,14 +56,14 @@ type alias Generator value state =
 -- Constructors
 
 
-{-| Construct a generator. Provide an initial state `b`, and a function that takes state and returns a `Maybe` (value, next state) tuple. Returning a `Nothing` signifiies that the generator is empty and will emit no further values.
+{-| Construct a generator. Provide an initial state, and a function that takes state and returns a successor in the form of a `Maybe` (value, next state) tuple. Returning a `Nothing` signifiies that the generator is empty and will emit no further values.
 
      init 1 (\n -> Just (n, n+1))
      |> take 5
      --> [1, 2, 3, 4, 5]
 
 -}
-init : state -> (state -> Maybe ( value, state )) -> Generator value state
+init : b -> (b -> Maybe ( a, b )) -> Generator a b
 init state applyNext =
     let
         wrap f b =
@@ -73,6 +100,12 @@ iterate f value =
     init value (\value_ -> Just ( value_, f value_ ))
 
 
+{-| A convenience export for generators constructed with `cycle`.
+-}
+type alias CycleGenerator a =
+    Generator a ( List a, a, List a )
+
+
 {-| An infinite generator that repeated cycles through the given values.
 
     cycle [1, 2, 3]
@@ -80,10 +113,6 @@ iterate f value =
     --> [1, 2, 3, 1, 2, 3]
 
 -}
-type alias CycleGenerator a =
-    Generator a ( List a, a, List a )
-
-
 cycle : List a -> CycleGenerator a
 cycle values =
     case values of
@@ -308,16 +337,14 @@ dropWhile predicate generator =
             generator_
 
 
+{-| Test if a generator is empty. An empty generator will emit no further values. Note that it's not necessary to check for emptiness before calling `advance` or other functions that attempt to advance the generator.
 
-{- Test if a generator is empty. An empty generator will emit no further values. Note that it's not necessary to check for emptiness before calling `advance` or other functions that attempt to advance the generator.
+    fromList [1, 2, 3, 4, 5]
+    |> drop 6
+    |> empty
+    --> True
 
-   fromList [1, 2, 3, 4, 5]
-   |> drop 5
-   |> empty
-   --> True
 -}
-
-
 empty : Generator a b -> Bool
 empty =
     Utils.withDefault True (\_ -> False)
