@@ -37,7 +37,7 @@ ruler =
 
 ## Further Examples
 
-In addition to inline tests in the module documentation, the repo contains some [`examples`](https://github.com/tkuriyama/elm-generator/tree/master/examples) for how to use generators.
+In addition to inline tests in the module documentation, the repo contains some [`examples`](https://github.com/tkuriyama/elm-generator/tree/master/src/Examples) for how to use generators.
 
 ## Build
 
