@@ -16,12 +16,11 @@ import Generator exposing (..)
 
 spec0 : Test.Test
 spec0 =
-    Test.test "#filter: \n\n    iterate ((+) 1) 1\n    |> map ((+) 1)\n    |> filter ((<) 3)\n    |> take 5\n    --> [4, 5, 6, 7, 8]" <|
+    Test.test "#filter: \n\n    iterate ((+) 1) 1\n    |> filter ((<) 3)\n    |> take 5\n    --> [4, 5, 6, 7, 8]" <|
         \() ->
             Expect.equal
                 (
                 iterate ((+) 1) 1
-                |> map ((+) 1)
                 |> filter ((<) 3)
                 |> take 5
                 )

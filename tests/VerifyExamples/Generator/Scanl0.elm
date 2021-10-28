@@ -16,13 +16,13 @@ import Generator exposing (..)
 
 spec0 : Test.Test
 spec0 =
-    Test.test "#scanl: \n\n    fromList [ 1, 2, 3 ]\n    |> scanl (+) 0\n    |> take 4\n    --> [1, 3, 6]" <|
+    Test.test "#scanl: \n\n    fromList [ 1, 2, 3 ]\n    |> scanl (+) 0\n    |> take 3\n    --> [1, 3, 6]" <|
         \() ->
             Expect.equal
                 (
                 fromList [ 1, 2, 3 ]
                 |> scanl (+) 0
-                |> take 4
+                |> take 3
                 )
                 (
                 [1, 3, 6]
