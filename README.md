@@ -8,7 +8,7 @@ The interface for generators is similar to a subset of Haskell's [`Data.List.Str
 ## Example
 
 
-The below example shows a classic construction of the Fibonacci (infnite) sequence:
+The below example shows a classic construction of the Fibonacci (infinite) sequence:
 
 ```elm
 > import Generator as G
@@ -27,17 +27,20 @@ Generators can be transformed and combined (e.g. `map`, `zip`, etc) in constant 
 
 Unlike streams, generators can be either finite or infinite. A finite generator that has reached its logical end is "empty" and simply emits no further values. (The library supplies an `empty` predicate function, but it should rarely be needed as library functions are agnostic to finite or infinite generators.)
 
-Note that the Elm compiler is still strict. So, even using the generator interface, it's not possible to write infinitely recursive functions that work in languages like Haskell. For example, an alternative formulation would be required for a snippet like the below, which attemps to define the ruler function recursively:
+Note that the Elm compiler is still strict. So, even using the generator interface, it's not possible to define infinitely recursive functions that work in languages like Haskell. 
 
 ```elm
--- this doesn't compile!
+-- this still doesn't compile!
 ruler =
     G.interleave (G.repeat 0) (G.map ((+) 1) ruler)
 ```
 
+As an example of an iterative formulation of a function that's often defined recursively, see the Sieve of Eratosthenes in [`Examples/Primes.elm`](https://github.com/tkuriyama/elm-generator/blob/master/src/Examples/Primes.elm). 
+
+
 ## Further Examples
 
-In addition to inline tests in the module documentation, the repo contains some [`examples`](https://github.com/tkuriyama/elm-generator/tree/master/src/Examples) for how to use generators.
+In addition to inline tests in the module documentation, the repo contains several [`examples`](https://github.com/tkuriyama/elm-generator/tree/master/src/Examples) for how to use generators.
 
 ## Build
 
