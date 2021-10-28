@@ -1,4 +1,4 @@
-module Timeseries exposing (..)
+module Examples.Timeseries exposing (..)
 
 {-| An example representing simple timeseries with generators.
 

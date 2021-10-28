@@ -1,35 +1,14 @@
 module Generator exposing
-    ( CycleGenerator
-    , Generator
-    , advance
-    , cons
-    , cycle
-    , drop
-    , dropWhile
-    , empty
-    , filter
-    , foldl
-    , fromList
-    , head
-    , init
-    , interleave
-    , intersperse
-    , iterate
-    , map
-    , merge
-    , mergeWith
-    , prefix
-    , repeat
-    , scanl
-    , tail
-    , take
-    , takeWhile
-    , toList
-    , zip
-    , zipWith
+    ( Generator
+    , CycleGenerator, advance, cons, cycle, drop, dropWhile, empty, filter, foldl, fromList, head, init, interleave, intersperse, iterate, map, merge, mergeWith, prefix, repeat, scanl, tail, take, takeWhile, toList, zip, zipWith
     )
 
 {-| This library provides a way to simulate lazy lists, or streams, in the form of generators.
+
+
+# Definition
+
+@docs Generator
 
 Generators are constructed with some initial state and a `next` function, which takes the state and returns the next value to emit, as well as the successor state.
 
@@ -39,8 +18,10 @@ import Internal.Types as Types exposing (..)
 import Internal.Utils as Utils
 
 
-type alias Generator a b =
-    Types.Generator a b
+{-| A generator is parameterized with: (1) the type of value it emits, (2) the type of its internal state. In general, users only care about the first, and the second is merely something that's required for type checking.
+-}
+type alias Generator value state =
+    Types.Generator value state
 
 
 
@@ -55,7 +36,7 @@ type alias Generator a b =
      --> [1, 2, 3, 4, 5]
 
 -}
-init : b -> (b -> Maybe ( a, b )) -> Generator a b
+init : state -> (state -> Maybe ( value, state )) -> Generator value state
 init state applyNext =
     let
         wrap f b =

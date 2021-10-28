@@ -1,4 +1,4 @@
-module Finance exposing (..)
+module Examples.Finance exposing (..)
 
 {-| Examples modeling basic financial math.
 -}

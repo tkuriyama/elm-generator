@@ -1,9 +1,9 @@
 module TestTimeseries exposing (..)
 
+import Examples.Timeseries as TS
 import Expect exposing (Expectation)
 import Generator as G
 import Test exposing (..)
-import Timeseries as TS
 
 
 

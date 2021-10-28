@@ -1,8 +1,8 @@
 module TestPrimes exposing (..)
 
+import Examples.Primes exposing (..)
 import Expect exposing (Expectation)
 import Generator as G
-import Primes exposing (..)
 import Test exposing (..)
 
 

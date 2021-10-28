@@ -1,6 +1,6 @@
 module TestCollatz exposing (..)
 
-import Collatz exposing (..)
+import Examples.Collatz exposing (..)
 import Expect exposing (Expectation)
 import Generator as G
 import List.Extra as LE

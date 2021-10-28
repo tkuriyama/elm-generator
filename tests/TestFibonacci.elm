@@ -1,7 +1,7 @@
 module TestFibonacci exposing (..)
 
+import Examples.Fibonacci as F
 import Expect exposing (Expectation)
-import Fibonacci as F
 import Generator as G
 import Test exposing (..)
 

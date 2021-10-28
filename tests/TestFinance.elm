@@ -1,7 +1,7 @@
 module TestFinance exposing (..)
 
+import Examples.Finance exposing (..)
 import Expect exposing (Expectation)
-import Finance exposing (..)
 import Generator as G
 import List.Extra as LE
 import Test exposing (..)

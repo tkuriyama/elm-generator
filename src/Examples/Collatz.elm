@@ -1,4 +1,4 @@
-module Collatz exposing (..)
+module Examples.Collatz exposing (..)
 
 {- } Implementation of the Collatz sequence.
 
@@ -13,6 +13,14 @@ import Generator as G
 --------------------------------------------------------------------------------
 
 
+{-| Collatz sequence generator.
+
+    import Generator as G
+
+    collatz 10 |> G.toList
+    --> [10,5,16,8,4,2,1]
+
+-}
 collatz : Int -> G.Generator Int Int
 collatz n =
     G.init

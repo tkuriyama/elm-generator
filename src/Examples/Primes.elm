@@ -1,4 +1,4 @@
-module Primes exposing (..)
+module Examples.Primes exposing (..)
 
 {-| Examples of prime number generators.
 
@@ -20,11 +20,15 @@ import List.Extra as LE
 
 {-| Primes by trial division.
 
-    G.take 10 trialDivisionWheel2
-        == [ 2, 3, 5, 7, 9, 11, 13, 17, 19, 23, 29 ]
+    import Generator as G
 
-    G.take 10 trialDivisionWheel2357
-        == [ 2, 3, 5, 7, 9, 11, 13, 17, 19, 23, 29 ]
+    trialDivisionWheel2
+    |> G.take 10
+    --> [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ]
+
+    trialDivisionWheel2357
+    |> G.take 10
+    --> [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ]
 
 The idea of using a hard-coded "wheel" for candidates to check comes from:
 <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>
@@ -94,11 +98,15 @@ trialDivisionPrime guess primes =
 
 The idea is to store the sieve's composite generators in a Dict, and update them just-in-time as more and more candidates are explored.
 
-    G.take 10 Primes.incrementalSieveWheel2
-        == [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ]
+    import Generator as G
 
-    G.take 10 Primes.incrementalSieveWheel2357
-        == [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ]
+    incrementalSieveWheel2
+    |> G.take 10
+    --> [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ]
+
+    incrementalSieveWheel2357
+    |> G.take 10
+     --> [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ]
 
 See section 3 of <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>
 
