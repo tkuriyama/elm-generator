@@ -9,7 +9,7 @@ elm-verify-examples >&2
 elm-test >&2
 
 # docs
-elm make --docs docs.json
+elm make --docs docs.json >&2
 
 # elm-optimize-level-2 examples/Main.elm --output=elm.js >&2
 
