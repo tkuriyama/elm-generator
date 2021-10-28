@@ -5,6 +5,8 @@ module Primes exposing (..)
   - Trial Division
   - Sieve of Eratosthenes
 
+See <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf> for further details on the algorithms.
+
 -}
 
 import Dict
@@ -181,7 +183,7 @@ updateMap guess compositeGenerators =
 
 
 --------------------------------------------------------------------------------
--- Seeds / candidates
+-- Seeds / Candidates
 
 
 wheel2 =

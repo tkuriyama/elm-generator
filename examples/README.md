@@ -20,6 +20,10 @@ Simple, classic stream functions:
 - [Fibonacci](https://github.com/tkuriyama/elm-generator/blob/master/examples/Fibonacci.elm)
 - [Collatz](https://github.com/tkuriyama/elm-generator/blob/master/examples/Collatz.elm)
 
+Prime numbers, including an implementation of the Sieve of Eratosthenes:
+
+- [Primes](https://github.com/tkuriyama/elm-generator/blob/master/examples/Primes.elm)
+
 Modeling basic financial math using streams:
 
 - [Finance](https://github.com/tkuriyama/elm-generator/blob/master/examples/Finance.elm)
