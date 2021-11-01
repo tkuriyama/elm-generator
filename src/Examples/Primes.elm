@@ -47,7 +47,7 @@ trialDivisionWheel2357 =
 
 
 type alias TrialDivisionState b =
-    ( Int, List Int, G.Generator Int b )
+    ( List Int, G.Generator Int b )
 
 
 trialDivisionPrimes :
@@ -56,14 +56,14 @@ trialDivisionPrimes :
 trialDivisionPrimes ( primes, lastPrime, candidateWheel ) =
     let
         state0 =
-            ( lastPrime, List.reverse primes, candidateWheel )
+            ( List.reverse primes, candidateWheel )
     in
     G.init state0 trialDivisionNext
         |> G.prefix primes
 
 
 trialDivisionNext : TrialDivisionState b -> Maybe ( Int, TrialDivisionState b )
-trialDivisionNext ( lastPrime, primes, wheel ) =
+trialDivisionNext ( primes, wheel ) =
     let
         ( guess, wheel_ ) =
             safeAdvance1 wheel
@@ -73,10 +73,10 @@ trialDivisionNext ( lastPrime, primes, wheel ) =
     in
     case trialDivisionPrime guess primes_ of
         True ->
-            Just ( guess, ( guess, guess :: primes, wheel_ ) )
+            Just ( guess, ( guess :: primes, wheel_ ) )
 
         False ->
-            trialDivisionNext ( guess, primes, wheel_ )
+            trialDivisionNext ( primes, wheel_ )
 
 
 trialDivisionPrime : Int -> List Int -> Bool
@@ -124,7 +124,7 @@ incrementalSieveWheel2357 =
 
 
 type alias IncrementalSieveState b =
-    ( Int, GeneratorDict b, G.Generator Int b )
+    ( GeneratorDict b, G.Generator Int b )
 
 
 type alias GeneratorDict b =
@@ -137,8 +137,7 @@ incrementalSievePrimes :
 incrementalSievePrimes ( primes, lastPrime, candidateWheel ) =
     let
         state0 =
-            ( lastPrime
-            , insertNext lastPrime candidateWheel Dict.empty
+            ( insertNext lastPrime candidateWheel Dict.empty
             , candidateWheel
             )
     in
@@ -149,7 +148,7 @@ incrementalSievePrimes ( primes, lastPrime, candidateWheel ) =
 incrementalSieveNext :
     IncrementalSieveState b
     -> Maybe ( Int, IncrementalSieveState b )
-incrementalSieveNext ( lastPrime, map, wheel ) =
+incrementalSieveNext ( map, wheel ) =
     let
         ( guess, wheel_ ) =
             safeAdvance1 wheel
@@ -157,11 +156,11 @@ incrementalSieveNext ( lastPrime, map, wheel ) =
     case Dict.get guess map of
         Nothing ->
             Just
-                ( guess, ( guess, insertNext guess wheel_ map, wheel_ ) )
+                ( guess, ( insertNext guess wheel_ map, wheel_ ) )
 
         Just composites ->
             incrementalSieveNext
-                ( guess, updateComposites guess composites map, wheel_ )
+                ( updateComposites guess composites map, wheel_ )
 
 
 insertNext : Int -> G.Generator Int b -> GeneratorDict b -> GeneratorDict b
