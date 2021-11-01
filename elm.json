@@ -3,7 +3,7 @@
     "name": "tkuriyama/elm-generator",
     "summary": "A generator library for simulating laziness.",
     "license": "BSD-3-Clause",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "exposed-modules": [
         "Generator"
     ],
