@@ -1,10 +1,11 @@
 module Generator exposing
     ( Generator, CycleGenerator
     , init, repeat, iterate, cycle, cons, prefix
-    , advance, head, tail, take, takeWhile, drop, dropWhile, empty
+    , advance, head, tail, take, takeWhile, drop, dropWhile
     , map, filter, scanl
     , zip, zipWith, merge, mergeWith, intersperse, interleave
     , fromList, toList, foldl
+    , empty, inspect
     )
 
 {-| This library provides a way to simulate lazy lists, or streams, in the form of generators.
@@ -22,7 +23,7 @@ module Generator exposing
 
 # Basic Manipulation
 
-@docs advance, head, tail, take, takeWhile, drop, dropWhile, empty
+@docs advance, head, tail, take, takeWhile, drop, dropWhile
 
 
 # Transformations
@@ -40,6 +41,11 @@ Note that a zipped generator will terminate when either of its parent generators
 # Finite Generators
 
 @docs fromList, toList, foldl
+
+
+# Introspection
+
+@docs empty, inspect
 
 -}
 
@@ -337,19 +343,6 @@ dropWhile predicate generator =
 
         ( _, generator_ ) ->
             generator_
-
-
-{-| Test if a generator is empty. An empty generator will emit no further values. Note that it's not necessary to check for emptiness before calling `advance` or other functions that attempt to advance the generator.
-
-    fromList [1, 2, 3, 4, 5]
-    |> drop 6
-    |> empty
-    --> True
-
--}
-empty : Generator a b -> Bool
-empty =
-    Utils.withDefault True (\_ -> False)
 
 
 
@@ -767,3 +760,47 @@ foldl f acc generator =
 
         Empty ->
             acc
+
+
+
+--------------------------------------------------------------------------------
+-- Introspection
+
+
+{-| Test if a generator is empty. An empty generator will emit no further values. Note that it's not necessary to check for emptiness before calling `advance` or other functions that attempt to advance the generator.
+
+    fromList [1, 2, 3, 4, 5]
+    |> drop 6
+    |> empty
+    --> True
+
+-}
+empty : Generator a b -> Bool
+empty =
+    Utils.withDefault True (\_ -> False)
+
+
+{-| Retrieve current state from generator (or Nothing if the generator is empty).
+
+This function isn't intended for use in normal interaction with or manipulation of generators. It can be useful for debugging, though, or otherwise studying non-trivial generator state.
+
+    fromList [1, 2, 3, 4, 5]
+    |> drop 6
+    |> inspect
+    --> Nothing
+
+
+    fromList [1, 2, 3, 4, 5]
+    |> drop 2
+    |> inspect
+    --> Just [3, 4, 5]
+
+-}
+inspect : Generator a b -> Maybe b
+inspect generator =
+    case generator of
+        Empty ->
+            Nothing
+
+        Active g ->
+            Just g.state
