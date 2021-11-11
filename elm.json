@@ -9,12 +9,10 @@
     ],
     "elm-version": "0.19.1 <= v < 0.20.0",
     "dependencies": {
-        "cuducos/elm-format-number": "9.0.0 <= v < 10.0.0",
-        "elm/core": "1.0.0 <= v < 2.0.0",
-        "elm-community/list-extra": "8.5.1 <= v < 9.0.0",
-        "jorgengranseth/elm-string-format": "1.0.1 <= v < 2.0.0"
+        "elm/core": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {
+        "elm-community/list-extra": "8.5.1 <= v < 9.0.0",
         "elm-explorations/test": "1.2.2 <= v < 2.0.0"
     }
 }
